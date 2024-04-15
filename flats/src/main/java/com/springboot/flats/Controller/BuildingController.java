@@ -30,4 +30,9 @@ public class BuildingController {
     public ResponseEntity<?> removeBuildingById(@PathVariable Long id) {
         return buildingService.removeById(id);
     }
+
+    @PutMapping("/building/{id}")
+    public ResponseEntity<?> updateBuildingById(@PathVariable Long id, @RequestBody Building building) {
+        return buildingService.update(id, building);
+    }
 }

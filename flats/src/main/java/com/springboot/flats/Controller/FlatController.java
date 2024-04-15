@@ -30,4 +30,9 @@ public class FlatController {
     public ResponseEntity<?> removeFlatById(@PathVariable Long id) {
         return flatService.removeById(id);
     }
+
+    @PutMapping("/flat/{id}")
+    public ResponseEntity<?> updateFlatById(@PathVariable Long id, @RequestBody Flat flat) {
+        return flatService.update(id, flat);
+    }
 }
