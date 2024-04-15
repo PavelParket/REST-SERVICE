@@ -8,14 +8,14 @@ import java.util.List;
 
 @Entity
 @Table(name = "person")
-@JsonIgnoreProperties({"flats"})
+//@JsonIgnoreProperties({"flats"})
 public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String surname;
-    private boolean owner;
+    //private boolean owner;
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Flat> flats;
 
@@ -24,7 +24,7 @@ public class Person {
     public Person(String name, String surname, boolean owner) {
         this.name = name;
         this.surname = surname;
-        this.owner = owner;
+        //this.owner = owner;
     }
 
     public Long getId() {
@@ -51,13 +51,13 @@ public class Person {
         this.surname = surname;
     }
 
-    public boolean isOwner() {
+    /*public boolean isOwner() {
         return owner;
     }
 
     public void setOwner(boolean owner) {
         this.owner = owner;
-    }
+    }*/
 
     public List<Flat> getFlats() {
         return flats;

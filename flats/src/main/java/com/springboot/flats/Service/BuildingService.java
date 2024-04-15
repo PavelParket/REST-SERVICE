@@ -57,6 +57,14 @@ public class BuildingService implements IService<Building> {
         Optional<Building> oldBuilding = buildingRepository.findById(id);
 
         if (oldBuilding.isEmpty()) return new ResponseEntity<>("No such building", HttpStatus.NOT_FOUND);
+
+        if (building.getAddress() == null) building.setAddress(oldBuilding.get().getAddress());
+
+        if (building.getCountOfFlats() == 0) building.setCountOfFlats(oldBuilding.get().getCountOfFlats());
+
+        Building newBuilding = oldBuilding.get();
+        newBuilding.setAddress(building.getAddress());
+        newBuilding.setCountOfFlats(building.getCountOfFlats());
         buildingRepository.save(building);
         return new ResponseEntity<>(building, HttpStatus.ACCEPTED);
     }

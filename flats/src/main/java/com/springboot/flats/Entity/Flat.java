@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "flat")
-@JsonIgnoreProperties({"owner"})
+//@JsonIgnoreProperties({"owner"})
 public class Flat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

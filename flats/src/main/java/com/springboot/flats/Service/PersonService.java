@@ -62,12 +62,12 @@ public class PersonService implements IService<Person> {
 
         if (person.getSurname() == null) person.setSurname(oldPerson.get().getSurname());
 
-        if (person.isOwner()) person.setOwner(oldPerson.get().isOwner());
+        //if (person.isOwner()) person.setOwner(oldPerson.get().isOwner());
 
         Person newPerson = oldPerson.get();
         newPerson.setName(person.getName());
         newPerson.setSurname(person.getSurname());
-        newPerson.setOwner(person.isOwner());
+        //newPerson.setOwner(person.isOwner());
         personRepository.save(newPerson);
         return new ResponseEntity<>(newPerson, HttpStatus.ACCEPTED);
     }

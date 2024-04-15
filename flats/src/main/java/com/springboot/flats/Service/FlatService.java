@@ -57,6 +57,7 @@ public class FlatService implements IService<Flat> {
         Optional<Flat> oldFlat = flatRepository.findById(id);
 
         if (oldFlat.isEmpty()) return new ResponseEntity<>("No such flat", HttpStatus.NOT_FOUND);
+
         flatRepository.save(flat);
         return new ResponseEntity<>(flat, HttpStatus.ACCEPTED);
     }
