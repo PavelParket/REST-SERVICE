@@ -1,19 +1,28 @@
 package com.springboot.flats.Service;
 
+import com.springboot.flats.Entity.Flat;
 import com.springboot.flats.Entity.Person;
+import com.springboot.flats.Entity.PersonLinkFlat;
+import com.springboot.flats.Repository.FlatRepository;
+import com.springboot.flats.Repository.PersonLinkFlatRepository;
 import com.springboot.flats.Repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class PersonService implements IService<Person> {
     @Autowired
     PersonRepository personRepository;
+
+    @Autowired
+    FlatRepository flatRepository;
+
+    @Autowired
+    PersonLinkFlatRepository personLinkFlatRepository;
 
     @Override
     public ResponseEntity<?> create(Person person) {
@@ -62,13 +71,41 @@ public class PersonService implements IService<Person> {
 
         if (person.getSurname() == null) person.setSurname(oldPerson.get().getSurname());
 
-        //if (person.isOwner()) person.setOwner(oldPerson.get().isOwner());
-
         Person newPerson = oldPerson.get();
         newPerson.setName(person.getName());
         newPerson.setSurname(person.getSurname());
-        //newPerson.setOwner(person.isOwner());
         personRepository.save(newPerson);
         return new ResponseEntity<>(newPerson, HttpStatus.ACCEPTED);
+    }
+
+    public ResponseEntity<?> addPersonFlatLink(Long personId, Long flatId, boolean owning) {
+        Optional<Person> person = personRepository.findById(personId);
+        Optional<Flat> flat = flatRepository.findById(flatId);
+
+        if (person.isEmpty() || flat.isEmpty()) return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+
+        PersonLinkFlat link = new PersonLinkFlat();
+        link.setPerson(person.get());
+        link.setFlat(flat.get());
+        link.setOwning(owning);
+        personLinkFlatRepository.save(link);
+        return new ResponseEntity<>("Person " + personId + " link flat " + flatId, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getPersonFlats(Long id) {
+        Optional<Person> person = personRepository.findById(id);
+
+        if (person.isEmpty()) return new ResponseEntity<>("No such person", HttpStatus.NOT_FOUND);
+
+        List<Flat> flatList = new ArrayList<>();
+        List<PersonLinkFlat> list = personLinkFlatRepository.findAll();
+        flatList = list.stream()
+                .filter(a -> a.getPerson().getId().equals(id) && a.isOwning())
+                .map(PersonLinkFlat::getFlat)
+                .toList();
+        Map<String, Object> response = new HashMap<>();
+        response.put("person", person);
+        response.put("flats", flatList);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

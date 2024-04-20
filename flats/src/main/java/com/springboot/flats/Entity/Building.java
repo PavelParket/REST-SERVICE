@@ -11,13 +11,17 @@ public class Building {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String address;
+
     private int countOfFlats;
+
     @OneToMany(mappedBy = "building", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Flat> flats;
 
-    public Building() {}
+    public Building() {
+    }
 
     public Building(String address, int countOfFlats) {
         this.address = address;

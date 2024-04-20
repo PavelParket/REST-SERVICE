@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 public class PersonController {
     @Autowired
@@ -34,5 +36,18 @@ public class PersonController {
     @PutMapping("/person/{id}")
     public ResponseEntity<?> updatePersonById(@PathVariable Long id, @RequestBody Person person) {
         return personService.update(id, person);
+    }
+
+    @PostMapping("/personlink")
+    public ResponseEntity<?> addPersonFlatLink(@RequestBody Map<String, Object> body) {
+        Long personId = ((Integer) body.get("personId")).longValue();
+        Long flatId = ((Integer) body.get("flatId")).longValue();
+        boolean owning = body.get("owning") != null && (boolean) body.get("owning");
+        return personService.addPersonFlatLink(personId, flatId, owning);
+    }
+
+    @GetMapping("/personflats/{id}")
+    public ResponseEntity<?> getPersonFlats(@PathVariable Long id) {
+        return personService.getPersonFlats(id);
     }
 }

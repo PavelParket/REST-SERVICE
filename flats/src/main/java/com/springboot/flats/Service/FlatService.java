@@ -58,7 +58,17 @@ public class FlatService implements IService<Flat> {
 
         if (oldFlat.isEmpty()) return new ResponseEntity<>("No such flat", HttpStatus.NOT_FOUND);
 
-        flatRepository.save(flat);
-        return new ResponseEntity<>(flat, HttpStatus.ACCEPTED);
+        if (flat.getNumber() == 0) flat.setNumber(oldFlat.get().getNumber());
+
+        if (flat.getCountOfRooms() == 0) flat.setCountOfRooms(oldFlat.get().getCountOfRooms());
+
+        if (flat.getTotalSquare() == 0) flat.setTotalSquare(oldFlat.get().getTotalSquare());
+
+        Flat newFlat = oldFlat.get();
+        newFlat.setNumber(flat.getNumber());
+        newFlat.setCountOfRooms(flat.getCountOfRooms());
+        newFlat.setTotalSquare(flat.getTotalSquare());
+        flatRepository.save(newFlat);
+        return new ResponseEntity<>(newFlat, HttpStatus.ACCEPTED);
     }
 }
