@@ -1,19 +1,25 @@
 package com.springboot.flats.Service;
 
 import com.springboot.flats.Entity.Flat;
+import com.springboot.flats.Entity.ObjectListDTO;
+import com.springboot.flats.Entity.Person;
+import com.springboot.flats.Entity.PersonLinkFlat;
 import com.springboot.flats.Repository.FlatRepository;
+import com.springboot.flats.Repository.PersonLinkFlatRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class FlatService implements IService<Flat> {
     @Autowired
     FlatRepository flatRepository;
+
+    @Autowired
+    PersonLinkFlatRepository personLinkFlatRepository;
 
     @Override
     public ResponseEntity<?> create(Flat flat) {
@@ -70,5 +76,21 @@ public class FlatService implements IService<Flat> {
         newFlat.setTotalSquare(flat.getTotalSquare());
         flatRepository.save(newFlat);
         return new ResponseEntity<>(newFlat, HttpStatus.ACCEPTED);
+    }
+
+    public ResponseEntity<?> getFlatPersons(Long id) {
+        Optional<Flat> flat = flatRepository.findById(id);
+
+        if (flat.isEmpty()) return new ResponseEntity<>("No such flat", HttpStatus.NOT_FOUND);
+
+        List<PersonLinkFlat> list = personLinkFlatRepository.findAll();
+        List<Person> personList = list.stream()
+                .filter(a -> a.getFlat().getId().equals(id) && !a.isOwning())
+                .map(PersonLinkFlat::getPerson)
+                .toList();
+        ObjectListDTO dtoResponse = new ObjectListDTO();
+        dtoResponse.setObject(flat.get());
+        dtoResponse.setList(dtoResponse.getObjectList(personList, Person.class));
+        return new ResponseEntity<>(dtoResponse, HttpStatus.OK);
     }
 }

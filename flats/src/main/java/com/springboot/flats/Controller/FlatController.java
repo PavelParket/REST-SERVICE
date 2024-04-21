@@ -35,4 +35,9 @@ public class FlatController {
     public ResponseEntity<?> updateFlatById(@PathVariable Long id, @RequestBody Flat flat) {
         return flatService.update(id, flat);
     }
+
+    @GetMapping("/flatpersons/{id}")
+    public ResponseEntity<?> getFlatPersons(@PathVariable Long id) {
+        return flatService.getFlatPersons(id);
+    }
 }

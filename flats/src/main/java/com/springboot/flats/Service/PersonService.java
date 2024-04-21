@@ -2,7 +2,7 @@ package com.springboot.flats.Service;
 
 import com.springboot.flats.Entity.Flat;
 import com.springboot.flats.Entity.Person;
-import com.springboot.flats.Entity.PersonFlatDTO;
+import com.springboot.flats.Entity.ObjectListDTO;
 import com.springboot.flats.Entity.PersonLinkFlat;
 import com.springboot.flats.Repository.FlatRepository;
 import com.springboot.flats.Repository.PersonLinkFlatRepository;
@@ -103,9 +103,9 @@ public class PersonService implements IService<Person> {
                 .filter(a -> a.getPerson().getId().equals(id) && a.isOwning())
                 .map(PersonLinkFlat::getFlat)
                 .toList();
-        PersonFlatDTO dtoResponse = new PersonFlatDTO();
-        dtoResponse.setPerson(person.get());
-        dtoResponse.setFlatList(dtoResponse.getObjectFlatList(flatList));
+        ObjectListDTO dtoResponse = new ObjectListDTO();
+        dtoResponse.setObject(person.get());
+        dtoResponse.setList(dtoResponse.getObjectList(flatList, Flat.class));
         return new ResponseEntity<>(dtoResponse, HttpStatus.OK);
     }
 }
