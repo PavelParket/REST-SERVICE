@@ -17,7 +17,7 @@ public class Building {
     private int countOfFlats;
 
     @OneToMany(mappedBy = "building", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonManagedReference("building")
     private List<Flat> flats;
 
     public Building() {

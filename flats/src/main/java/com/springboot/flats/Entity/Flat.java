@@ -1,8 +1,6 @@
 package com.springboot.flats.Entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -26,7 +24,7 @@ public class Flat {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "building_id")
-    @JsonBackReference
+    @JsonBackReference("building")
     private Building building;
 
     public Flat() {
@@ -53,14 +51,6 @@ public class Flat {
     public void setCountOfRooms(int countOfRooms) {
         this.countOfRooms = countOfRooms;
     }
-
-    /*public Person getOwner() {
-        return owner;
-    }
-
-    public void setOwner(Person owner) {
-        this.owner = owner;
-    }*/
 
     public Building getBuilding() {
         return building;

@@ -2,6 +2,7 @@ package com.springboot.flats.Service;
 
 import com.springboot.flats.Entity.Flat;
 import com.springboot.flats.Entity.Person;
+import com.springboot.flats.Entity.PersonFlatDTO;
 import com.springboot.flats.Entity.PersonLinkFlat;
 import com.springboot.flats.Repository.FlatRepository;
 import com.springboot.flats.Repository.PersonLinkFlatRepository;
@@ -97,15 +98,14 @@ public class PersonService implements IService<Person> {
 
         if (person.isEmpty()) return new ResponseEntity<>("No such person", HttpStatus.NOT_FOUND);
 
-        List<Flat> flatList = new ArrayList<>();
         List<PersonLinkFlat> list = personLinkFlatRepository.findAll();
-        flatList = list.stream()
+        List<Flat> flatList = list.stream()
                 .filter(a -> a.getPerson().getId().equals(id) && a.isOwning())
                 .map(PersonLinkFlat::getFlat)
                 .toList();
-        Map<String, Object> response = new HashMap<>();
-        response.put("person", person);
-        response.put("flats", flatList);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        PersonFlatDTO dtoResponse = new PersonFlatDTO();
+        dtoResponse.setPerson(person.get());
+        dtoResponse.setFlatList(dtoResponse.getObjectFlatList(flatList));
+        return new ResponseEntity<>(dtoResponse, HttpStatus.OK);
     }
 }

@@ -65,7 +65,7 @@ public class BuildingService implements IService<Building> {
         Building newBuilding = oldBuilding.get();
         newBuilding.setAddress(building.getAddress());
         newBuilding.setCountOfFlats(building.getCountOfFlats());
-        buildingRepository.save(building);
-        return new ResponseEntity<>(building, HttpStatus.ACCEPTED);
+        buildingRepository.save(newBuilding);
+        return new ResponseEntity<>(newBuilding, HttpStatus.ACCEPTED);
     }
 }

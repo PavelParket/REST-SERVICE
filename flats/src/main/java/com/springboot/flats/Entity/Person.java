@@ -1,6 +1,5 @@
 package com.springboot.flats.Entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -60,12 +59,4 @@ public class Person {
     public void setLinkList(List<PersonLinkFlat> linkList) {
         this.linkList = linkList;
     }
-
-    /*public List<Flat> getFlats() {
-        return flats;
-    }
-
-    public void setFlats(List<Flat> flats) {
-        this.flats = flats;
-    }*/
 }
