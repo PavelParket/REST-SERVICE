@@ -1,9 +1,7 @@
 package com.springboot.flats.Service;
 
-import com.springboot.flats.Entity.Flat;
-import com.springboot.flats.Entity.ObjectListDTO;
-import com.springboot.flats.Entity.Person;
-import com.springboot.flats.Entity.PersonLinkFlat;
+import com.springboot.flats.Entity.*;
+import com.springboot.flats.Repository.BuildingRepository;
 import com.springboot.flats.Repository.FlatRepository;
 import com.springboot.flats.Repository.PersonLinkFlatRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,21 +17,24 @@ public class FlatService implements IService<Flat> {
     FlatRepository flatRepository;
 
     @Autowired
+    BuildingRepository buildingRepository;
+
+    @Autowired
     PersonLinkFlatRepository personLinkFlatRepository;
 
     @Override
     public ResponseEntity<?> create(Flat flat) {
-        flatRepository.save(flat);
-        Optional<Flat> newFlat = flatRepository.findById(flat.getId());
-
-        if (newFlat.isPresent()) {
-            return new ResponseEntity<>(newFlat.get(), HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        Building building = flat.getBuilding();
+        Long id = building.getId();
+        building = buildingRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+        flat.setBuilding(building);
+        building.getFlats().add(flat);
+        buildingRepository.save(building);
+        return new ResponseEntity<>(null, HttpStatus.CREATED);
     }
 
     @Override
-    public ResponseEntity<List<Flat>> getAll() {
+    public ResponseEntity<List<Flat>> get() {
         return new ResponseEntity<>(flatRepository.findAll(), HttpStatus.OK);
     }
 
@@ -48,18 +49,17 @@ public class FlatService implements IService<Flat> {
     }
 
     @Override
-    public ResponseEntity<?> removeById(Long id) {
-        Optional<Flat> flat = flatRepository.findById(id);
-
-        if (flat.isPresent()) {
-            flatRepository.deleteById(id);
-            return new ResponseEntity<>(null, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> remove(Long id) {
+        Flat flat = flatRepository.findById(id).get();
+        Building building = flat.getBuilding();
+        building.getFlats().remove(flat);
+        buildingRepository.save(building);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<?> update(Long id, Flat flat) {
+    public ResponseEntity<?> update(Flat flat) {
+        Long id = flat.getId();
         Optional<Flat> oldFlat = flatRepository.findById(id);
 
         if (oldFlat.isEmpty()) return new ResponseEntity<>("No such flat", HttpStatus.NOT_FOUND);

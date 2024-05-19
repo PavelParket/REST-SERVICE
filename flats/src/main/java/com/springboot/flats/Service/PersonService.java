@@ -37,7 +37,7 @@ public class PersonService implements IService<Person> {
     }
 
     @Override
-    public ResponseEntity<List<Person>> getAll() {
+    public ResponseEntity<List<Person>> get() {
         return new ResponseEntity<>(personRepository.findAll(), HttpStatus.OK);
     }
 
@@ -52,7 +52,7 @@ public class PersonService implements IService<Person> {
     }
 
     @Override
-    public ResponseEntity<?> removeById(Long id) {
+    public ResponseEntity<?> remove(Long id) {
         Optional<Person> person = personRepository.findById(id);
 
         if (person.isPresent()) {
@@ -63,7 +63,8 @@ public class PersonService implements IService<Person> {
     }
 
     @Override
-    public ResponseEntity<?> update(Long id, Person person) {
+    public ResponseEntity<?> update(Person person) {
+        Long id = person.getId();
         Optional<Person> oldPerson = personRepository.findById(id);
 
         if (oldPerson.isEmpty()) return new ResponseEntity<>("No such person", HttpStatus.NOT_FOUND);

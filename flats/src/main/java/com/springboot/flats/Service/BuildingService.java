@@ -27,8 +27,8 @@ public class BuildingService implements IService<Building> {
     }
 
     @Override
-    public ResponseEntity<List<Building>> getAll() {
-        return new ResponseEntity<>(null, HttpStatus.OK);
+    public ResponseEntity<List<Building>> get() {
+        return new ResponseEntity<>(buildingRepository.findAll(), HttpStatus.OK);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class BuildingService implements IService<Building> {
     }
 
     @Override
-    public ResponseEntity<?> removeById(Long id) {
+    public ResponseEntity<?> remove(Long id) {
         Optional<Building> building = buildingRepository.findById(id);
 
         if (building.isPresent()) {
@@ -53,7 +53,8 @@ public class BuildingService implements IService<Building> {
     }
 
     @Override
-    public ResponseEntity<?> update(Long id, Building building) {
+    public ResponseEntity<?> update(Building building) {
+        Long id = building.getId();
         Optional<Building> oldBuilding = buildingRepository.findById(id);
 
         if (oldBuilding.isEmpty()) return new ResponseEntity<>("No such building", HttpStatus.NOT_FOUND);

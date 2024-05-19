@@ -10,12 +10,12 @@ public class PersonLinkFlat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "person_id")
     @JsonBackReference("person")
     private Person person;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "flat_id")
     @JsonBackReference("flat")
     private Flat flat;

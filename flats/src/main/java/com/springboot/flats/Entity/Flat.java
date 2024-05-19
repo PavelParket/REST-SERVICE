@@ -18,11 +18,11 @@ public class Flat {
 
     private double totalSquare;
 
-    @OneToMany(mappedBy = "flat")
+    @OneToMany(mappedBy = "flat", cascade = {CascadeType.ALL}, orphanRemoval = true)
     @JsonManagedReference("flat")
     private List<PersonLinkFlat> linkList;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "building_id")
     @JsonBackReference("building")
     private Building building;

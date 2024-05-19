@@ -7,32 +7,33 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping(value = "api/building")
 public class BuildingController {
     @Autowired
     BuildingService buildingService;
 
-    @PostMapping("/building")
-    public ResponseEntity<?> createBuilding(@RequestBody Building building) {
+    @PostMapping
+    public ResponseEntity<?> create(@RequestBody Building building) {
         return buildingService.create(building);
     }
 
-    @GetMapping("/buildings")
-    public ResponseEntity<?> getAllBuildings() {
-        return buildingService.getAll();
+    @GetMapping
+    public ResponseEntity<?> getAll() {
+        return buildingService.get();
     }
 
-    @GetMapping("/buildings/{id}")
-    public ResponseEntity<?> getBuildingById(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable Long id) {
         return buildingService.getById(id);
     }
 
-    @DeleteMapping("/building/{id}")
-    public ResponseEntity<?> removeBuildingById(@PathVariable Long id) {
-        return buildingService.removeById(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> remove(@PathVariable Long id) {
+        return buildingService.remove(id);
     }
 
-    @PutMapping("/building/{id}")
-    public ResponseEntity<?> updateBuildingById(@PathVariable Long id, @RequestBody Building building) {
-        return buildingService.update(id, building);
+    @PutMapping
+    public ResponseEntity<?> update(@RequestBody Building building) {
+        return buildingService.update(building);
     }
 }

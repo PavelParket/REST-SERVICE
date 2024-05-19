@@ -7,36 +7,37 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping(value = "api/flat")
 public class FlatController {
     @Autowired
     FlatService flatService;
 
-    @PostMapping("/flat")
-    public ResponseEntity<?> createFlat(@RequestBody Flat flat) {
+    @PostMapping
+    public ResponseEntity<?> create(@RequestBody Flat flat) {
         return flatService.create(flat);
     }
 
-    @GetMapping("/flats")
-    public ResponseEntity<?> getAllFlats() {
-        return flatService.getAll();
+    @GetMapping
+    public ResponseEntity<?> getAll() {
+        return flatService.get();
     }
 
-    @GetMapping("/flats/{id}")
-    public ResponseEntity<?> getFlatById(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable Long id) {
         return flatService.getById(id);
     }
 
-    @DeleteMapping("/flat/{id}")
-    public ResponseEntity<?> removeFlatById(@PathVariable Long id) {
-        return flatService.removeById(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> remove(@PathVariable Long id) {
+        return flatService.remove(id);
     }
 
-    @PutMapping("/flat/{id}")
-    public ResponseEntity<?> updateFlatById(@PathVariable Long id, @RequestBody Flat flat) {
-        return flatService.update(id, flat);
+    @PutMapping
+    public ResponseEntity<?> update(@RequestBody Flat flat) {
+        return flatService.update(flat);
     }
 
-    @GetMapping("/flatpersons/{id}")
+    @GetMapping("/flat-persons/{id}")
     public ResponseEntity<?> getFlatPersons(@PathVariable Long id) {
         return flatService.getFlatPersons(id);
     }

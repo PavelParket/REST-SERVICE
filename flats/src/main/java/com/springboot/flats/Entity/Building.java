@@ -16,7 +16,7 @@ public class Building {
 
     private int countOfFlats;
 
-    @OneToMany(mappedBy = "building", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "building", cascade = {CascadeType.ALL}, orphanRemoval = true)
     @JsonManagedReference("building")
     private List<Flat> flats;
 

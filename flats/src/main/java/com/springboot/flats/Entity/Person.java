@@ -16,7 +16,7 @@ public class Person {
 
     private String surname;
 
-    @OneToMany(mappedBy = "person")
+    @OneToMany(mappedBy = "person", cascade = {CascadeType.ALL}, orphanRemoval = true)
     @JsonManagedReference("person")
     private List<PersonLinkFlat> linkList;
 

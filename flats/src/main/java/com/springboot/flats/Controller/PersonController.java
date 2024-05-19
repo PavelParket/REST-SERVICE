@@ -9,36 +9,37 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
+@RequestMapping(value = "api/person")
 public class PersonController {
     @Autowired
     PersonService personService;
 
-    @PostMapping("/person")
-    public ResponseEntity<?> createPerson(@RequestBody Person person) {
+    @PostMapping
+    public ResponseEntity<?> create(@RequestBody Person person) {
         return personService.create(person);
     }
 
-    @GetMapping("/persons")
-    public ResponseEntity<?> getAllPersons() {
-        return personService.getAll();
+    @GetMapping
+    public ResponseEntity<?> getAll() {
+        return personService.get();
     }
 
-    @GetMapping("/persons/{id}")
-    public ResponseEntity<?> getPersonById(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable Long id) {
         return personService.getById(id);
     }
 
-    @DeleteMapping("/person/{id}")
-    public ResponseEntity<?> removePersonById(@PathVariable Long id) {
-        return personService.removeById(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> remove(@PathVariable Long id) {
+        return personService.remove(id);
     }
 
-    @PutMapping("/person/{id}")
-    public ResponseEntity<?> updatePersonById(@PathVariable Long id, @RequestBody Person person) {
-        return personService.update(id, person);
+    @PutMapping
+    public ResponseEntity<?> update(@RequestBody Person person) {
+        return personService.update(person);
     }
 
-    @PostMapping("/personlink")
+    @PostMapping("/person-link")
     public ResponseEntity<?> addPersonFlatLink(@RequestBody Map<String, Object> body) {
         Long personId = ((Integer) body.get("personId")).longValue();
         Long flatId = ((Integer) body.get("flatId")).longValue();
@@ -46,7 +47,7 @@ public class PersonController {
         return personService.addPersonFlatLink(personId, flatId, owning);
     }
 
-    @GetMapping("/personflats/{id}")
+    @GetMapping("/person-flats/{id}")
     public ResponseEntity<?> getPersonFlats(@PathVariable Long id) {
         return personService.getPersonFlats(id);
     }
