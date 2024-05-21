@@ -1,8 +1,9 @@
 package com.springboot.flats.Config;
 
+import com.springboot.flats.Service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -18,7 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class WebSecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
-        return new CustomUserDetailService();
+        return new UserService();
     }
 
     @Bean
@@ -34,7 +35,17 @@ public class WebSecurityConfig {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers("/**").permitAll()
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/person/{id}",
+                                "/api/flat",
+                                "/api/flat/{id}",
+                                "/api/flat/building/{id}",
+                                "/api/building",
+                                "api/building/{id}"
+                        ).hasRole("USER")
+                        .requestMatchers("/api/**").hasRole("ADMIN")
+                        .anyRequest().denyAll()
                 )
                 .httpBasic(Customizer.withDefaults())
                 .build();

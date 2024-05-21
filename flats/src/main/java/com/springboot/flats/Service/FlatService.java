@@ -4,6 +4,7 @@ import com.springboot.flats.Entity.*;
 import com.springboot.flats.Entity.DTO.BuildingDTO;
 import com.springboot.flats.Entity.DTO.FlatDTO;
 import com.springboot.flats.Entity.DTO.ObjectListDTO;
+import com.springboot.flats.Entity.DTO.PersonDTO;
 import com.springboot.flats.Repository.BuildingRepository;
 import com.springboot.flats.Repository.FlatRepository;
 import com.springboot.flats.Repository.PersonLinkFlatRepository;
@@ -91,13 +92,14 @@ public class FlatService implements IService<FlatDTO, Flat> {
         if (flat.isEmpty()) return null;
 
         List<PersonLinkFlat> list = personLinkFlatRepository.findAll();
-        List<Person> personList = list.stream()
+        List<PersonDTO> personList = list.stream()
                 .filter(a -> a.getFlat().getId().equals(id) && !a.isOwning())
                 .map(PersonLinkFlat::getPerson)
+                .map(PersonDTO::new)
                 .toList();
         ObjectListDTO dtoResponse = new ObjectListDTO();
         dtoResponse.setObject(flat.get());
-        dtoResponse.setList(dtoResponse.getObjectList(personList, Person.class));
+        dtoResponse.setList(dtoResponse.getObjectList(personList, PersonDTO.class));
         return dtoResponse;
     }
 
