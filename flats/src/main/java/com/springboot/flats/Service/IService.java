@@ -1,13 +1,15 @@
 package com.springboot.flats.Service;
 
-import org.springframework.http.ResponseEntity;
-
 import java.util.List;
 
-public interface IService<T> {
-    ResponseEntity<?> create(T object);
-    ResponseEntity<List<T>> get();
-    ResponseEntity<?> getById(Long id);
-    ResponseEntity<?> remove(Long id);
-    ResponseEntity<?> update(T object);
+public interface IService<T, U> {
+    T create(U object);
+
+    List<T> get();
+
+    T getById(Long id);
+
+    boolean remove(Long id);
+
+    T update(U object);
 }

@@ -1,18 +1,19 @@
 package com.springboot.flats.Service;
 
 import com.springboot.flats.Entity.*;
+import com.springboot.flats.Entity.DTO.BuildingDTO;
+import com.springboot.flats.Entity.DTO.FlatDTO;
+import com.springboot.flats.Entity.DTO.ObjectListDTO;
 import com.springboot.flats.Repository.BuildingRepository;
 import com.springboot.flats.Repository.FlatRepository;
 import com.springboot.flats.Repository.PersonLinkFlatRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
-public class FlatService implements IService<Flat> {
+public class FlatService implements IService<FlatDTO, Flat> {
     @Autowired
     FlatRepository flatRepository;
 
@@ -23,46 +24,49 @@ public class FlatService implements IService<Flat> {
     PersonLinkFlatRepository personLinkFlatRepository;
 
     @Override
-    public ResponseEntity<?> create(Flat flat) {
+    public FlatDTO create(Flat flat) {
         Building building = flat.getBuilding();
         Long id = building.getId();
         building = buildingRepository.findById(id).orElseThrow(IllegalArgumentException::new);
         flat.setBuilding(building);
         building.getFlats().add(flat);
         buildingRepository.save(building);
-        return new ResponseEntity<>(null, HttpStatus.CREATED);
+        Flat newFlat = flatRepository.save(flat);
+        return new FlatDTO(newFlat);
     }
 
     @Override
-    public ResponseEntity<List<Flat>> get() {
-        return new ResponseEntity<>(flatRepository.findAll(), HttpStatus.OK);
+    public List<FlatDTO> get() {
+        List<Flat> flats = flatRepository.findAll();
+        return flats.stream()
+                .map(FlatDTO::new)
+                .toList();
     }
 
     @Override
-    public ResponseEntity<?> getById(Long id) {
+    public FlatDTO getById(Long id) {
+        Optional<Flat> flat = flatRepository.findById(id);
+        return flat.map(FlatDTO::new).orElse(null);
+    }
+
+    @Override
+    public boolean remove(Long id) {
         Optional<Flat> flat = flatRepository.findById(id);
 
-        if (flat.isPresent()) {
-            return new ResponseEntity<>(flat, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-    }
+        if (flat.isEmpty()) return false;
 
-    @Override
-    public ResponseEntity<?> remove(Long id) {
-        Flat flat = flatRepository.findById(id).get();
-        Building building = flat.getBuilding();
-        building.getFlats().remove(flat);
+        Building building = flat.get().getBuilding();
+        building.getFlats().remove(flat.get());
         buildingRepository.save(building);
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        return true;
     }
 
     @Override
-    public ResponseEntity<?> update(Flat flat) {
+    public FlatDTO update(Flat flat) {
         Long id = flat.getId();
         Optional<Flat> oldFlat = flatRepository.findById(id);
 
-        if (oldFlat.isEmpty()) return new ResponseEntity<>("No such flat", HttpStatus.NOT_FOUND);
+        if (oldFlat.isEmpty()) return null;
 
         if (flat.getNumber() == 0) flat.setNumber(oldFlat.get().getNumber());
 
@@ -70,18 +74,21 @@ public class FlatService implements IService<Flat> {
 
         if (flat.getTotalSquare() == 0) flat.setTotalSquare(oldFlat.get().getTotalSquare());
 
+        if (flat.getBuilding() == null) flat.setBuilding(oldFlat.get().getBuilding());
+
         Flat newFlat = oldFlat.get();
         newFlat.setNumber(flat.getNumber());
         newFlat.setCountOfRooms(flat.getCountOfRooms());
         newFlat.setTotalSquare(flat.getTotalSquare());
+        newFlat.setBuilding(buildingRepository.findById(flat.getBuilding().getId()).get());
         flatRepository.save(newFlat);
-        return new ResponseEntity<>(newFlat, HttpStatus.ACCEPTED);
+        return new FlatDTO(newFlat);
     }
 
-    public ResponseEntity<?> getFlatPersons(Long id) {
+    public ObjectListDTO getFlatPersons(Long id) {
         Optional<Flat> flat = flatRepository.findById(id);
 
-        if (flat.isEmpty()) return new ResponseEntity<>("No such flat", HttpStatus.NOT_FOUND);
+        if (flat.isEmpty()) return null;
 
         List<PersonLinkFlat> list = personLinkFlatRepository.findAll();
         List<Person> personList = list.stream()
@@ -91,6 +98,28 @@ public class FlatService implements IService<Flat> {
         ObjectListDTO dtoResponse = new ObjectListDTO();
         dtoResponse.setObject(flat.get());
         dtoResponse.setList(dtoResponse.getObjectList(personList, Person.class));
-        return new ResponseEntity<>(dtoResponse, HttpStatus.OK);
+        return dtoResponse;
+    }
+
+    public BuildingDTO getBuildingInfo(Long id) {
+        Optional<Flat> flat = flatRepository.findById(id);
+        return flat.map(f -> new BuildingDTO(f.getBuilding())).orElse(null);
+    }
+
+    public Map<String, Object> getCountOfTenants(Long id) {
+        Optional<Flat> flat = flatRepository.findById(id);
+        Map<String, Object> response = new HashMap<>();
+
+        if (flat.isEmpty()) {
+            response.put("error", "No such flat");
+            return response;
+        }
+
+        List<PersonLinkFlat> linkList = flat.get().getLinkList();
+        int count = (int) linkList.stream()
+                .filter(a -> !a.isOwning())
+                .count();
+        response.put("count", count);
+        return response;
     }
 }

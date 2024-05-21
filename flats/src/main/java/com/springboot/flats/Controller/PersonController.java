@@ -1,8 +1,11 @@
 package com.springboot.flats.Controller;
 
+import com.springboot.flats.Entity.DTO.ObjectListDTO;
+import com.springboot.flats.Entity.DTO.PersonDTO;
 import com.springboot.flats.Entity.Person;
 import com.springboot.flats.Service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,27 +19,34 @@ public class PersonController {
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Person person) {
-        return personService.create(person);
+        PersonDTO personDTO = personService.create(person);
+        if (personDTO == null) return new ResponseEntity<>("Not created", HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(personDTO, HttpStatus.CREATED);
     }
 
     @GetMapping
     public ResponseEntity<?> getAll() {
-        return personService.get();
+        return new ResponseEntity<>(personService.get(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
-        return personService.getById(id);
+        PersonDTO personDTO = personService.getById(id);
+        if (personDTO == null) return new ResponseEntity<>("No such person", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(personDTO, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> remove(@PathVariable Long id) {
-        return personService.remove(id);
+        if (personService.remove(id)) return new ResponseEntity<>("Deleted", HttpStatus.ACCEPTED);
+        return new ResponseEntity<>("No such person", HttpStatus.NOT_FOUND);
     }
 
     @PutMapping
     public ResponseEntity<?> update(@RequestBody Person person) {
-        return personService.update(person);
+        PersonDTO personDTO = personService.update(person);
+        if (personDTO == null) return new ResponseEntity<>("No such person", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(personDTO, HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/person-link")
@@ -44,11 +54,24 @@ public class PersonController {
         Long personId = ((Integer) body.get("personId")).longValue();
         Long flatId = ((Integer) body.get("flatId")).longValue();
         boolean owning = body.get("owning") != null && (boolean) body.get("owning");
-        return personService.addPersonFlatLink(personId, flatId, owning);
+        HttpStatus httpStatus = personService.addPersonFlatLink(personId, flatId, owning);
+        return new ResponseEntity<>(httpStatus);
     }
 
     @GetMapping("/person-flats/{id}")
     public ResponseEntity<?> getPersonFlats(@PathVariable Long id) {
-        return personService.getPersonFlats(id);
+        ObjectListDTO dto = personService.getPersonFlats(id);
+        if (dto == null) return new ResponseEntity<>("No such person", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
+
+    @GetMapping("/count-flats/{id}")
+    public ResponseEntity<?> getCountOfFlatsInPossession(@PathVariable Long id) {
+        Map<String, Object> response = personService.getCountOfFlatsInPossession(id);
+
+        if (response.containsKey("error")) new ResponseEntity<>(response.get("error"), HttpStatus.NOT_FOUND);
+
+        return new ResponseEntity<>("Person " + response.get("name") + " " + response.get("surname") +
+                " owns " + response.get("count") + " flats", HttpStatus.OK);
     }
 }

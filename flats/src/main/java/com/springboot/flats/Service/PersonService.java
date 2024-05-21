@@ -1,21 +1,16 @@
 package com.springboot.flats.Service;
 
-import com.springboot.flats.Entity.Flat;
-import com.springboot.flats.Entity.Person;
-import com.springboot.flats.Entity.ObjectListDTO;
-import com.springboot.flats.Entity.PersonLinkFlat;
-import com.springboot.flats.Repository.FlatRepository;
-import com.springboot.flats.Repository.PersonLinkFlatRepository;
-import com.springboot.flats.Repository.PersonRepository;
+import com.springboot.flats.Entity.*;
+import com.springboot.flats.Entity.DTO.*;
+import com.springboot.flats.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
-public class PersonService implements IService<Person> {
+public class PersonService implements IService<PersonDTO, Person> {
     @Autowired
     PersonRepository personRepository;
 
@@ -25,49 +20,43 @@ public class PersonService implements IService<Person> {
     @Autowired
     PersonLinkFlatRepository personLinkFlatRepository;
 
-    @Override
-    public ResponseEntity<?> create(Person person) {
+    public PersonDTO create(Person person) {
         personRepository.save(person);
         Optional<Person> newPerson = personRepository.findById(person.getId());
-
-        if (newPerson.isPresent()) {
-            return new ResponseEntity<>(newPerson.get(), HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        return newPerson.map(PersonDTO::new).orElse(null);
     }
 
     @Override
-    public ResponseEntity<List<Person>> get() {
-        return new ResponseEntity<>(personRepository.findAll(), HttpStatus.OK);
+    public List<PersonDTO> get() {
+        List<Person> persons = personRepository.findAll();
+        return persons.stream()
+                .map(PersonDTO::new)
+                .toList();
     }
 
     @Override
-    public ResponseEntity<?> getById(Long id) {
+    public PersonDTO getById(Long id) {
         Optional<Person> person = personRepository.findById(id);
+        return person.map(PersonDTO::new).orElse(null);
 
-        if (person.isPresent()) {
-            return new ResponseEntity<>(person, HttpStatus.FOUND);
-        }
-        return new ResponseEntity<>("No such person", HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public ResponseEntity<?> remove(Long id) {
+    public boolean remove(Long id) {
         Optional<Person> person = personRepository.findById(id);
 
         if (person.isPresent()) {
             personRepository.deleteById(id);
-            return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
+            return true;
         }
-        return new ResponseEntity<>("No such person", HttpStatus.NOT_FOUND);
+        return false;
     }
 
-    @Override
-    public ResponseEntity<?> update(Person person) {
+    public PersonDTO update(Person person) {
         Long id = person.getId();
         Optional<Person> oldPerson = personRepository.findById(id);
 
-        if (oldPerson.isEmpty()) return new ResponseEntity<>("No such person", HttpStatus.NOT_FOUND);
+        if (oldPerson.isEmpty()) return null;
 
         if (person.getName() == null) person.setName(oldPerson.get().getName());
 
@@ -77,36 +66,57 @@ public class PersonService implements IService<Person> {
         newPerson.setName(person.getName());
         newPerson.setSurname(person.getSurname());
         personRepository.save(newPerson);
-        return new ResponseEntity<>(newPerson, HttpStatus.ACCEPTED);
+        return new PersonDTO(newPerson);
     }
 
-    public ResponseEntity<?> addPersonFlatLink(Long personId, Long flatId, boolean owning) {
+    public HttpStatus addPersonFlatLink(Long personId, Long flatId, boolean owning) {
         Optional<Person> person = personRepository.findById(personId);
         Optional<Flat> flat = flatRepository.findById(flatId);
 
-        if (person.isEmpty() || flat.isEmpty()) return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        if (person.isEmpty()) return HttpStatus.NOT_FOUND;
+        if (flat.isEmpty()) return HttpStatus.NOT_FOUND;
 
         PersonLinkFlat link = new PersonLinkFlat();
         link.setPerson(person.get());
         link.setFlat(flat.get());
         link.setOwning(owning);
         personLinkFlatRepository.save(link);
-        return new ResponseEntity<>("Person " + personId + " link flat " + flatId, HttpStatus.OK);
+        return HttpStatus.ACCEPTED;
     }
 
-    public ResponseEntity<?> getPersonFlats(Long id) {
+    public ObjectListDTO getPersonFlats(Long id) {
         Optional<Person> person = personRepository.findById(id);
 
-        if (person.isEmpty()) return new ResponseEntity<>("No such person", HttpStatus.NOT_FOUND);
+        if (person.isEmpty()) return null;
 
         List<PersonLinkFlat> list = personLinkFlatRepository.findAll();
-        List<Flat> flatList = list.stream()
+        List<FlatDTO> flatList = list.stream()
                 .filter(a -> a.getPerson().getId().equals(id) && a.isOwning())
                 .map(PersonLinkFlat::getFlat)
+                .map(FlatDTO::new)
                 .toList();
         ObjectListDTO dtoResponse = new ObjectListDTO();
         dtoResponse.setObject(person.get());
-        dtoResponse.setList(dtoResponse.getObjectList(flatList, Flat.class));
-        return new ResponseEntity<>(dtoResponse, HttpStatus.OK);
+        dtoResponse.setList(dtoResponse.getObjectList(flatList, FlatDTO.class));
+        return dtoResponse;
+    }
+
+    public Map<String, Object> getCountOfFlatsInPossession(Long id) {
+        Optional<Person> person = personRepository.findById(id);
+        Map<String, Object> response = new HashMap<>();
+
+        if (person.isEmpty()) {
+            response.put("error", "No such person");
+            return response;
+        }
+
+        List<PersonLinkFlat> list = personLinkFlatRepository.findAll();
+        int count = (int) list.stream()
+                .filter(a -> a.getPerson().getId().equals(id) && a.isOwning())
+                .count();
+        response.put("name", person.get().getName());
+        response.put("surname", person.get().getSurname());
+        response.put("count", count);
+        return response;
     }
 }

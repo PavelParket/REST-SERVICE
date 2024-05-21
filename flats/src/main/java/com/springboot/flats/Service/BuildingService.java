@@ -1,63 +1,59 @@
 package com.springboot.flats.Service;
 
 import com.springboot.flats.Entity.Building;
+import com.springboot.flats.Entity.DTO.BuildingDTO;
+import com.springboot.flats.Entity.Flat;
 import com.springboot.flats.Repository.BuildingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class BuildingService implements IService<Building> {
+public class BuildingService implements IService<BuildingDTO, Building> {
     @Autowired
     BuildingRepository buildingRepository;
 
     @Override
-    public ResponseEntity<?> create(Building building) {
+    public BuildingDTO create(Building building) {
         buildingRepository.save(building);
         Optional<Building> newBuilding = buildingRepository.findById(building.getId());
+        return newBuilding.map(BuildingDTO::new).orElse(null);
 
-        if (newBuilding.isPresent()) {
-            return new ResponseEntity<>(newBuilding.get(), HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
-    public ResponseEntity<List<Building>> get() {
-        return new ResponseEntity<>(buildingRepository.findAll(), HttpStatus.OK);
+    public List<BuildingDTO> get() {
+        List<Building> buildings = buildingRepository.findAll();
+        return buildings.stream()
+                .map(BuildingDTO::new)
+                .toList();
     }
 
     @Override
-    public ResponseEntity<?> getById(Long id) {
+    public BuildingDTO getById(Long id) {
         Optional<Building> building = buildingRepository.findById(id);
-
-        if (building.isPresent()) {
-            return new ResponseEntity<>(building, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        return building.map(BuildingDTO::new).orElse(null);
     }
 
     @Override
-    public ResponseEntity<?> remove(Long id) {
+    public boolean remove(Long id) {
         Optional<Building> building = buildingRepository.findById(id);
 
         if (building.isPresent()) {
             buildingRepository.deleteById(id);
-            return new ResponseEntity<>(null, HttpStatus.OK);
+            return true;
         }
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        return false;
     }
 
     @Override
-    public ResponseEntity<?> update(Building building) {
+    public BuildingDTO update(Building building) {
         Long id = building.getId();
         Optional<Building> oldBuilding = buildingRepository.findById(id);
 
-        if (oldBuilding.isEmpty()) return new ResponseEntity<>("No such building", HttpStatus.NOT_FOUND);
+        if (oldBuilding.isEmpty()) return null;
 
         if (building.getAddress() == null) building.setAddress(oldBuilding.get().getAddress());
 
@@ -67,6 +63,19 @@ public class BuildingService implements IService<Building> {
         newBuilding.setAddress(building.getAddress());
         newBuilding.setCountOfFlats(building.getCountOfFlats());
         buildingRepository.save(newBuilding);
-        return new ResponseEntity<>(newBuilding, HttpStatus.ACCEPTED);
+        return new BuildingDTO(newBuilding);
+    }
+
+    public Integer getCountOfTenants(Long id) {
+        Optional<Building> building = buildingRepository.findById(id);
+
+        if (building.isEmpty()) return null;
+
+        List<Flat> flats = building.get().getFlats();
+        return flats.stream()
+                .flatMap(flat -> flat.getLinkList().stream())
+                .filter(link -> !link.isOwning())
+                .mapToInt(link -> 1)
+                .sum();
     }
 }
