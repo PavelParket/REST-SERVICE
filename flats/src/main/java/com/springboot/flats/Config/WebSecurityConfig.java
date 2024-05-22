@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.util.Arrays;
+
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
@@ -43,8 +45,8 @@ public class WebSecurityConfig {
                                 "/api/flat/building/{id}",
                                 "/api/building",
                                 "api/building/{id}"
-                        ).hasRole("USER")
-                        .requestMatchers("/api/**").hasRole("ADMIN")
+                        ).hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(Arrays.toString(HttpMethod.values()), "/api/**").hasRole("ADMIN")
                         .anyRequest().denyAll()
                 )
                 .httpBasic(Customizer.withDefaults())
