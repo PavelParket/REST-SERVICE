@@ -38,7 +38,7 @@ public class PersonController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> remove(@PathVariable Long id) {
-        if (personService.remove(id)) return new ResponseEntity<>("Deleted", HttpStatus.ACCEPTED);
+        if (personService.remove(id)) return new ResponseEntity<>("Deleted", HttpStatus.OK);
         return new ResponseEntity<>("No such person", HttpStatus.NOT_FOUND);
     }
 
@@ -46,7 +46,7 @@ public class PersonController {
     public ResponseEntity<?> update(@RequestBody Person person) {
         PersonDTO personDTO = personService.update(person);
         if (personDTO == null) return new ResponseEntity<>("No such person", HttpStatus.NOT_FOUND);
-        return new ResponseEntity<>(personDTO, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(personDTO, HttpStatus.OK);
     }
 
     @PostMapping("/person-link")
@@ -58,9 +58,18 @@ public class PersonController {
         return new ResponseEntity<>(httpStatus);
     }
 
+    @DeleteMapping("/person-link")
+    public ResponseEntity<?> removePersonFlatLink(@RequestBody Map<String, Object> body) {
+        Long personId = ((Integer) body.get("personId")).longValue();
+        Long flatId = ((Integer) body.get("flatId")).longValue();
+        return personService.removePersonFlatLink(personId, flatId) ?
+                new ResponseEntity<>("Deleted", HttpStatus.OK) :
+                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
     @GetMapping("/person-flats/{id}")
-    public ResponseEntity<?> getPersonFlats(@PathVariable Long id) {
-        ObjectListDTO dto = personService.getPersonFlats(id);
+    public ResponseEntity<?> getOwnerFlats(@PathVariable Long id) {
+        ObjectListDTO dto = personService.getOwnerFlats(id);
         if (dto == null) return new ResponseEntity<>("No such person", HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }

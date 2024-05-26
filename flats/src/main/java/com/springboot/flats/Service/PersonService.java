@@ -81,10 +81,19 @@ public class PersonService implements IService<PersonDTO, Person> {
         link.setFlat(flat.get());
         link.setOwning(owning);
         personLinkFlatRepository.save(link);
-        return HttpStatus.ACCEPTED;
+        return HttpStatus.OK;
     }
 
-    public ObjectListDTO getPersonFlats(Long id) {
+    public boolean removePersonFlatLink(Long personId, Long flatId) {
+        PersonLinkFlat link = personLinkFlatRepository.findByPersonIdAndFlatId(personId, flatId);
+
+        if (link == null) return false;
+
+        personLinkFlatRepository.deleteById(link.getId());
+        return true;
+    }
+
+    public ObjectListDTO getOwnerFlats(Long id) {
         Optional<Person> person = personRepository.findById(id);
 
         if (person.isEmpty()) return null;

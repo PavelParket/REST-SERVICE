@@ -2,13 +2,19 @@ package com.springboot.flats.Service;
 
 import com.springboot.flats.Entity.Building;
 import com.springboot.flats.Entity.DTO.BuildingDTO;
+import com.springboot.flats.Entity.DTO.ObjectListDTO;
+import com.springboot.flats.Entity.DTO.PersonDTO;
 import com.springboot.flats.Entity.Flat;
+import com.springboot.flats.Entity.Person;
+import com.springboot.flats.Entity.PersonLinkFlat;
 import com.springboot.flats.Repository.BuildingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class BuildingService implements IService<BuildingDTO, Building> {
@@ -77,5 +83,27 @@ public class BuildingService implements IService<BuildingDTO, Building> {
                 .filter(link -> !link.isOwning())
                 .mapToInt(link -> 1)
                 .sum();
+    }
+
+    public ObjectListDTO getOwnersInBuilding(Long id) {
+        Optional<Building> building = buildingRepository.findById(id);
+
+        if (building.isEmpty()) return null;
+
+        List<Flat> flats = building.get().getFlats();
+        List<PersonLinkFlat> links = flats.stream()
+                .flatMap(flat -> flat.getLinkList().stream())
+                .filter(PersonLinkFlat::isOwning)
+                .toList();
+        List<PersonDTO> owners = links.stream()
+                .map(PersonLinkFlat::getPerson)
+                .distinct()
+                .map(PersonDTO::new)
+                .toList();
+
+        ObjectListDTO dto = new ObjectListDTO();
+        dto.setObject(new BuildingDTO(building.get()));
+        dto.setList(dto.getObjectList(owners, PersonDTO.class));
+        return dto;
     }
 }

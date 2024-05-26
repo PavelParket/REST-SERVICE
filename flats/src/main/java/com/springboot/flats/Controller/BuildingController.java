@@ -52,4 +52,11 @@ public class BuildingController {
         if (count == null) return new ResponseEntity<>("No such building", HttpStatus.NOT_FOUND);
         return new ResponseEntity<>("Count of tenant in the building is " + count, HttpStatus.OK);
     }
+
+    @GetMapping("/owners/{id}")
+    public ResponseEntity<?> getOwnersInBuilding(@PathVariable Long id) {
+        return buildingService.getOwnersInBuilding(id) == null ?
+                new ResponseEntity<>(HttpStatus.NOT_FOUND) :
+                new ResponseEntity<>(buildingService.getOwnersInBuilding(id), HttpStatus.OK);
+    }
 }

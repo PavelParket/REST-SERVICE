@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PersonLinkFlatRepository extends JpaRepository<PersonLinkFlat, Long> {
+    PersonLinkFlat findByPersonIdAndFlatId(Long personId, Long flatId);
 }

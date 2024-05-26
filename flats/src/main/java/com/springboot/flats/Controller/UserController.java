@@ -21,7 +21,7 @@ public class UserController {
 
     @DeleteMapping("/{username}")
     public ResponseEntity<?> remove(@PathVariable String username) {
-        if (userService.remove(username)) return new ResponseEntity<>("Deleted", HttpStatus.ACCEPTED);
+        if (userService.remove(username)) return new ResponseEntity<>("Deleted", HttpStatus.OK);
         return new ResponseEntity<>("No such user", HttpStatus.NOT_FOUND);
     }
 }

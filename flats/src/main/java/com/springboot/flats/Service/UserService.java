@@ -47,6 +47,12 @@ public class UserService implements UserDetailsService {
     }
 
     public boolean remove(String username) {
-        return userRepository.findByUsername(username).isPresent();
+        Optional<User> user = userRepository.findByUsername(username);
+
+        if (user.isPresent()) {
+            userRepository.deleteById(user.get().getId());
+            return true;
+        }
+        return false;
     }
 }

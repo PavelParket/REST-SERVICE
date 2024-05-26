@@ -10,6 +10,8 @@ public class PersonLinkFlat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    boolean owning;
+
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "person_id")
     @JsonBackReference("person")
@@ -19,8 +21,6 @@ public class PersonLinkFlat {
     @JoinColumn(name = "flat_id")
     @JsonBackReference("flat")
     private Flat flat;
-
-    boolean owning;
 
     public PersonLinkFlat() {
     }
@@ -51,5 +51,13 @@ public class PersonLinkFlat {
 
     public void setOwning(boolean owning) {
         this.owning = owning;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

@@ -51,8 +51,8 @@ public class FlatController {
     }
 
     @GetMapping("/flat-persons/{id}")
-    public ResponseEntity<?> getFlatPersons(@PathVariable Long id) {
-        ObjectListDTO dto = flatService.getFlatPersons(id);
+    public ResponseEntity<?> getFlatTenants(@PathVariable Long id) {
+        ObjectListDTO dto = flatService.getFlatTenants(id);
         if (dto == null) return new ResponseEntity<>("No such flat", HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }

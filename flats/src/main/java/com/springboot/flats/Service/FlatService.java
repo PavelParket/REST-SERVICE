@@ -86,7 +86,7 @@ public class FlatService implements IService<FlatDTO, Flat> {
         return new FlatDTO(newFlat);
     }
 
-    public ObjectListDTO getFlatPersons(Long id) {
+    public ObjectListDTO getFlatTenants(Long id) {
         Optional<Flat> flat = flatRepository.findById(id);
 
         if (flat.isEmpty()) return null;
@@ -98,7 +98,7 @@ public class FlatService implements IService<FlatDTO, Flat> {
                 .map(PersonDTO::new)
                 .toList();
         ObjectListDTO dtoResponse = new ObjectListDTO();
-        dtoResponse.setObject(flat.get());
+        dtoResponse.setObject(new FlatDTO(flat.get()));
         dtoResponse.setList(dtoResponse.getObjectList(personList, PersonDTO.class));
         return dtoResponse;
     }
