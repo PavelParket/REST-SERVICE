@@ -93,7 +93,7 @@ public class PersonService implements IService<PersonDTO, Person> {
         return true;
     }
 
-    public ObjectListDTO getOwnerFlats(Long id) {
+    public ObjectListDTO getFlatsInPossession(Long id) {
         Optional<Person> person = personRepository.findById(id);
 
         if (person.isEmpty()) return null;

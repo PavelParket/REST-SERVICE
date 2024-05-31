@@ -5,6 +5,7 @@ import com.springboot.flats.Entity.DTO.FlatDTO;
 import com.springboot.flats.Entity.DTO.ObjectListDTO;
 import com.springboot.flats.Entity.Flat;
 import com.springboot.flats.Service.FlatService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(value = "api/flat")
+@Tag(name = "Flat Controller", description = "To process information about Flat")
 public class FlatController {
     @Autowired
     FlatService flatService;

@@ -44,7 +44,12 @@ public class WebSecurityConfig {
                                 "/api/building",
                                 "/api/building/{id}"
                         ).hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/api/**").hasRole("ADMIN")
+                        .requestMatchers(
+                                "/api/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).hasRole("ADMIN")
                         .anyRequest().denyAll()
                 )
                 .httpBasic(Customizer.withDefaults())

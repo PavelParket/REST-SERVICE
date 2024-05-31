@@ -2,6 +2,7 @@ package com.springboot.flats.Controller;
 
 import com.springboot.flats.Entity.User;
 import com.springboot.flats.Service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "api/user")
+@Tag(name = "User Controller", description = "To process information about User")
 public class UserController {
     @Autowired
     private UserService userService;

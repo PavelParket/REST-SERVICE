@@ -3,6 +3,7 @@ package com.springboot.flats.Controller;
 import com.springboot.flats.Entity.Building;
 import com.springboot.flats.Entity.DTO.BuildingDTO;
 import com.springboot.flats.Service.BuildingService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "api/building")
+@Tag(name = "Building Controller", description = "To process information about Building")
 public class BuildingController {
     @Autowired
     BuildingService buildingService;
