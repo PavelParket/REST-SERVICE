@@ -26,13 +26,16 @@ public class FlatService implements IService<FlatDTO, Flat> {
 
     @Override
     public FlatDTO create(Flat flat) {
+        if (flat.getNumber() == 0 || flat.getTotalSquare() == 0 || flat.getCountOfRooms() == 0 || flat.getBuilding() == null) {
+            return null;
+        }
+
         Building building = flat.getBuilding();
-        Long id = building.getId();
-        building = buildingRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+        building = buildingRepository.findById(building.getId()).orElseThrow(() -> new IllegalArgumentException("Building not found"));
         flat.setBuilding(building);
         building.getFlats().add(flat);
-        buildingRepository.save(building);
         Flat newFlat = flatRepository.save(flat);
+        buildingRepository.save(building);
         return new FlatDTO(newFlat);
     }
 

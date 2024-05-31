@@ -20,10 +20,14 @@ public class PersonService implements IService<PersonDTO, Person> {
     @Autowired
     PersonLinkFlatRepository personLinkFlatRepository;
 
+    @Override
     public PersonDTO create(Person person) {
+        if (person.getName() == null || person.getSurname() == null) {
+            return null;
+        }
+
         personRepository.save(person);
-        Optional<Person> newPerson = personRepository.findById(person.getId());
-        return newPerson.map(PersonDTO::new).orElse(null);
+        return new PersonDTO(personRepository.findById(person.getId()).orElseThrow(IllegalArgumentException::new));
     }
 
     @Override
@@ -70,11 +74,12 @@ public class PersonService implements IService<PersonDTO, Person> {
     }
 
     public HttpStatus addPersonFlatLink(Long personId, Long flatId, boolean owning) {
+        if (personId == null || flatId == null) return HttpStatus.NOT_FOUND;
+
         Optional<Person> person = personRepository.findById(personId);
         Optional<Flat> flat = flatRepository.findById(flatId);
 
-        if (person.isEmpty()) return HttpStatus.NOT_FOUND;
-        if (flat.isEmpty()) return HttpStatus.NOT_FOUND;
+        if (person.isEmpty() || flat.isEmpty()) return HttpStatus.NOT_FOUND;
 
         PersonLinkFlat link = new PersonLinkFlat();
         link.setPerson(person.get());
@@ -85,6 +90,8 @@ public class PersonService implements IService<PersonDTO, Person> {
     }
 
     public boolean removePersonFlatLink(Long personId, Long flatId) {
+        if (personId == null || flatId == null) return false;
+
         PersonLinkFlat link = personLinkFlatRepository.findByPersonIdAndFlatId(personId, flatId);
 
         if (link == null) return false;
@@ -105,7 +112,7 @@ public class PersonService implements IService<PersonDTO, Person> {
                 .map(FlatDTO::new)
                 .toList();
         ObjectListDTO dtoResponse = new ObjectListDTO();
-        dtoResponse.setObject(person.get());
+        dtoResponse.setObject(new PersonDTO(person.get()));
         dtoResponse.setList(dtoResponse.getObjectList(flatList, FlatDTO.class));
         return dtoResponse;
     }

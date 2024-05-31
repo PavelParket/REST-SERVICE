@@ -77,8 +77,8 @@ public class PersonController {
     @PostMapping("/person-link")
     @Operation(summary = "Add a person-flat link")
     public ResponseEntity<?> addPersonFlatLink(@RequestBody Map<String, Object> body) {
-        Long personId = ((Integer) body.get("personId")).longValue();
-        Long flatId = ((Integer) body.get("flatId")).longValue();
+        Long personId = body.get("personId") != null ? ((Integer) body.get("personId")).longValue() : null;
+        Long flatId = body.get("flatId") != null ? ((Integer) body.get("flatId")).longValue() : null;
         boolean owning = body.get("owning") != null && (boolean) body.get("owning");
         HttpStatus httpStatus = personService.addPersonFlatLink(personId, flatId, owning);
         return new ResponseEntity<>(httpStatus);
@@ -87,8 +87,8 @@ public class PersonController {
     @DeleteMapping("/person-link")
     @Operation(summary = "Remove a person-flat link")
     public ResponseEntity<?> removePersonFlatLink(@RequestBody Map<String, Object> body) {
-        Long personId = ((Integer) body.get("personId")).longValue();
-        Long flatId = ((Integer) body.get("flatId")).longValue();
+        Long personId = body.get("personId") != null ? ((Integer) body.get("personId")).longValue() : null;
+        Long flatId = body.get("flatId") != null ? ((Integer) body.get("flatId")).longValue() : null;
         return personService.removePersonFlatLink(personId, flatId) ?
                 new ResponseEntity<>("Deleted", HttpStatus.OK) :
                 new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -115,7 +115,7 @@ public class PersonController {
     public ResponseEntity<?> getCountOfFlatsInPossession(@PathVariable Long id) {
         Map<String, Object> response = personService.getCountOfFlatsInPossession(id);
 
-        if (response.containsKey("error")) new ResponseEntity<>(response.get("error"), HttpStatus.NOT_FOUND);
+        if (response.containsKey("error")) return new ResponseEntity<>(response.get("error"), HttpStatus.NOT_FOUND);
 
         return new ResponseEntity<>("Person " + response.get("name") + " " + response.get("surname") +
                 " owns " + response.get("count") + " flats", HttpStatus.OK);

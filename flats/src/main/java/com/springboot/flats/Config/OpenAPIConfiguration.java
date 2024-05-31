@@ -11,7 +11,7 @@ public class OpenAPIConfiguration {
     public OpenAPI defineOpenApi() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("My API")
+                        .title("RESTFul-service")
                         .description("API Documentation")
                         .version("v1"));
     }

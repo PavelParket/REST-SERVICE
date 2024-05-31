@@ -23,9 +23,12 @@ public class BuildingService implements IService<BuildingDTO, Building> {
 
     @Override
     public BuildingDTO create(Building building) {
+        if (building.getAddress() == null || building.getCountOfFlats() == 0) {
+            return null;
+        }
+
         buildingRepository.save(building);
-        Optional<Building> newBuilding = buildingRepository.findById(building.getId());
-        return newBuilding.map(BuildingDTO::new).orElse(null);
+        return new BuildingDTO(buildingRepository.findById(building.getId()).orElseThrow(IllegalArgumentException::new));
 
     }
 
