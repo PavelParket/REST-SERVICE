@@ -120,4 +120,10 @@ public class PersonController {
         return new ResponseEntity<>("Person " + response.get("name") + " " + response.get("surname") +
                 " owns " + response.get("count") + " flats", HttpStatus.OK);
     }
+
+    @PutMapping("/copy/person1={id1}/person2={id2}")
+    public ResponseEntity<?> copyInfo(@PathVariable Long id1, @PathVariable Long id2) {
+        PersonDTO person = personService.copyInfo(id1, id2);
+        return new ResponseEntity<>(person, HttpStatus.OK);
+    }
 }
