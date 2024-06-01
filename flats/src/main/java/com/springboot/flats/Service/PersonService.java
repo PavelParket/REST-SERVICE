@@ -135,4 +135,15 @@ public class PersonService implements IService<PersonDTO, Person> {
         response.put("count", count);
         return response;
     }
+
+    public PersonDTO copyInfo(Long id1, Long id2) {
+        Person person1 = personRepository.findById(id1).orElseThrow(IllegalArgumentException::new);
+        Person person2 = personRepository.findById(id2).orElseThrow(IllegalArgumentException::new);
+
+        person2.setName(person1.getName());
+        person2.setSurname(person1.getSurname());
+        personRepository.save(person2);
+        
+        return new PersonDTO(person2);
+    }
 }
